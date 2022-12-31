@@ -6,7 +6,7 @@ function hash(data: Buffer): Buffer {
 }
 
 function doubleHash(data: Buffer): Buffer {
-    return hash(crypto.createHash('sha256').update(data).digest());
+    return hash(hash(data));
 }
 
 export type Proof = {
