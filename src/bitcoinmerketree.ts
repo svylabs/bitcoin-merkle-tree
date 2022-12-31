@@ -5,8 +5,8 @@ function hash(data: Buffer): Buffer {
     return crypto.createHash('sha256').update(data).digest();
 }
 
-function doubleHash(data1: Buffer, data2: Buffer): Buffer {
-    return hash(crypto.createHash('sha256').update(data1).update(data2).digest());
+function doubleHash(data: Buffer): Buffer {
+    return hash(crypto.createHash('sha256').update(data).digest());
 }
 
 export type Proof = {
@@ -18,8 +18,12 @@ export class BitcoinMerkleTree {
     private root: Buffer;
     private txHashes: Buffer[];
 
-    constructor(txHashes: Buffer[]) {
-        this.txHashes = txHashes.map((hash) => hash.reverse());
+    /**
+     * 
+     * @param txHashes Transaction hashes in little endian format as returned by Bitcoin RPC
+     */
+    constructor(txHashes: string[]) {
+        this.txHashes = txHashes.map((hash) => Buffer.from(hash, "hex").reverse());
         this.root = this.createTree(this.txHashes);
     }
 
@@ -36,7 +40,7 @@ export class BitcoinMerkleTree {
                 len++;
             }
             for (var i = 0; i < len / 2; i++) {
-                hashes[i] = doubleHash(hashes[2 * i], hashes[(2 * i) + 1]);
+                hashes[i] = doubleHash(Buffer.concat([hashes[2 * i], hashes[(2 * i) + 1]]));
             }
             len = len / 2;
         }
@@ -48,7 +52,7 @@ export class BitcoinMerkleTree {
         return root.reverse().toString("hex");
     }
 
-    public getInclusionProof(hash: string) {
+    public getInclusionProof(txHash: string) {
         // Generate Transaction inclusion proof
     }
     public verifyProof(leaf: string, root: string, proof: Proof) {

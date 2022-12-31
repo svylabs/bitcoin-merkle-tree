@@ -19,16 +19,14 @@ describe("MerkleTreeTest", () => {
                 "8d30eb0f3e65b8d8a9f26f6f73fc5aafa5c0372f9bb38aa38dd4c9dd1933e090",
                 "13e3167d46334600b59a5aa286dd02147ac33e64bfc2e188e1f0c0a442182584"
               ]
-            const txIds = txs.map((txId) => (Buffer.from(txId, "hex")));
-            const instance = new BitcoinMerkleTree(txIds);
+            const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string("be0b136f2f3db38d4f55f1963f0acac506d637b3c27a4c42f3504836a4ec52b1");
         });
 
         it("Bigger test", () => {
             const txs = dataset239Txs.txs;
-            const txIds = txs.map((txId) => (Buffer.from(txId, "hex")));
-            const instance = new BitcoinMerkleTree(txIds);
+            const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string(dataset239Txs.root);
         });
@@ -36,8 +34,7 @@ describe("MerkleTreeTest", () => {
 
         it("Even Bigger dataset", () => {
             const txs = biggerDataSet.txs;
-            const txIds = txs.map((txId) => (Buffer.from(txId, "hex")));
-            const instance = new BitcoinMerkleTree(txIds);
+            const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string(biggerDataSet.root);
         });
