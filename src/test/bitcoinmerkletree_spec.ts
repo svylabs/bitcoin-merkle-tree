@@ -1,20 +1,45 @@
 import {expect} from 'chai';
 import { BitcoinMerkleTree } from '../bitcoinmerketree';
+import {biggerDataSet, dataset239Txs} from './testdata';
 
 describe("MerkleTreeTest", () => {
     // test case for average here
 
     describe("create merkle tree", () => {
         it("Happy case", () => {
-            const txIds = [
-                Buffer.from("8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", "hex").reverse(),
-                Buffer.from("fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4", "hex").reverse(),
-                Buffer.from("6359f0868171b1d194cbee1af2f16ea598ae8fad666d9b012c8ed2b79a236ec4", "hex").reverse(),
-                Buffer.from("e9a66845e05d5abc0ad04ec80f774a7e585c6e8db975962d069a522137b80c1d", "hex").reverse()
-            ];
+            const txs = [
+                "bcdc61cbecf6137eec5c8ad4047fcdc36710e77e404b17378a33ae605920afe1",
+                "f7f4c281ee20ab8d1b00734b92b60582b922211a7e470accd147c6d70c9714a3",
+                "b5f6e3b217fa7f6d58081b5d2a9a6607eebd889ed2c470191b2a45e0dcb98eb0",
+                "4206f171f06913b1d40597edcaf75780559231fb504c49ba85a4a9ae949e8b95",
+                "a1a6ad6ff321c76496a89b6a4eb9bcfb76b9e068b677d5c7d427c51ca08c273d",
+                "89c82039452c14a9314b5834e5d2b9241b1fdccdb6e4f4f68e49015540faaf95",
+                "25c6a1f8c0b5be2bee1e8dd3478b4ec8f54bbc3742eaf90bfb5afd46cf217ad9",
+                "57eef4da5edacc1247e71d3a93ed2ccaae69c302612e414f98abf8db0b671eae",
+                "8d30eb0f3e65b8d8a9f26f6f73fc5aafa5c0372f9bb38aa38dd4c9dd1933e090",
+                "13e3167d46334600b59a5aa286dd02147ac33e64bfc2e188e1f0c0a442182584"
+              ]
+            const txIds = txs.map((txId) => (Buffer.from(txId, "hex")));
             const instance = new BitcoinMerkleTree(txIds);
             console.log(instance.getRoot());
-            expect(instance.getRoot()).to.be.string("f3e94742aca4b5ef85488dc37c06c3282295ffec960994b2c0d5ac2a25a95766");
+            expect(instance.getRoot()).to.be.string("be0b136f2f3db38d4f55f1963f0acac506d637b3c27a4c42f3504836a4ec52b1");
+        });
+
+        it("Bigger test", () => {
+            const txs = dataset239Txs.txs;
+            const txIds = txs.map((txId) => (Buffer.from(txId, "hex")));
+            const instance = new BitcoinMerkleTree(txIds);
+            console.log(instance.getRoot());
+            expect(instance.getRoot()).to.be.string(dataset239Txs.root);
+        });
+
+
+        it("Even Bigger dataset", () => {
+            const txs = biggerDataSet.txs;
+            const txIds = txs.map((txId) => (Buffer.from(txId, "hex")));
+            const instance = new BitcoinMerkleTree(txIds);
+            console.log(instance.getRoot());
+            expect(instance.getRoot()).to.be.string(biggerDataSet.root);
         });
     });
 });

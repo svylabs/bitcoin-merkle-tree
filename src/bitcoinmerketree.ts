@@ -19,7 +19,7 @@ export class BitcoinMerkleTree {
     private txHashes: Buffer[];
 
     constructor(txHashes: Buffer[]) {
-        this.txHashes = Array.of(...txHashes);
+        this.txHashes = txHashes.map((hash) => hash.reverse());
         this.root = this.createTree(this.txHashes);
     }
 
