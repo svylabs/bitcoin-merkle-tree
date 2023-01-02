@@ -144,8 +144,12 @@ export class BitcoinMerkleTree {
         const hashes: Buffer[] = [];
         let nodesIndex = 0;
         let hashesIndex = 0;
+        let foundTx = false;
         for (var i = 0; i < proof.flags.length;i++) {
             if (proof.flags[i] == '0') {
+                if (proof.nodes[nodesIndex] === leaf) {
+                    foundTx = true;
+                }
                 if (hashesIndex >= hashes.length) {
                     hashes.push(Buffer.from(proof.nodes[nodesIndex++], "hex").reverse());
                 } else {
@@ -157,7 +161,7 @@ export class BitcoinMerkleTree {
                 hashesIndex--;
             }
         }
-        return this.getRoot() === this.toHex(hashes[0]);
+        return (foundTx && (hashesIndex == 1) && this.getRoot() === this.toHex(hashes[0]));
     }
 
 }
