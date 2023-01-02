@@ -139,7 +139,7 @@ export class BitcoinMerkleTree {
         }
     }
 
-    public verifyProof(leaf: string, root: string, proof: MerkleProof): boolean {
+    public verifyProof(leaf: string, proof: MerkleProof): boolean {
         // Verifies that leaf is a part of the root based on proof
         const hashes: Buffer[] = [];
         let nodesIndex = 0;
