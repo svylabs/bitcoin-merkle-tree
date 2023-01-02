@@ -24,12 +24,13 @@ describe("MerkleTreeTest", () => {
             expect(instance.getRoot()).to.be.string("be0b136f2f3db38d4f55f1963f0acac506d637b3c27a4c42f3504836a4ec52b1");
             for (var i=0;i<txs.length;i++) {
                 const proof = instance.getInclusionProof(txs[i]);
-                //console.log(txs[i], proof);
+                console.log(txs[i], proof);
                 expect(instance.verifyProof(txs[i], proof)).equals(true);
             }
             for (var i=0;i<txs.length;i++) {
                 const proof = instance.getInclusionProof(txs[i]);
                 // Verify proof for incorrect transaction leaf should fail
+                console.log(txs[i], proof);
                 expect(instance.verifyProof(txs[(i + 5) % txs.length], proof)).equals(false);
             }
         });

@@ -10,8 +10,9 @@ function doubleHash(data: Buffer): Buffer {
 }
 
 export type MerkleProof = {
-    nodes: string[],
-    flags: string
+    hashes: string[],
+    index: number,
+    found: boolean
 };
 
 export class BitcoinMerkleTree {
@@ -99,42 +100,54 @@ export class BitcoinMerkleTree {
             }
         });
         if (index == -1) return null;
-        return this.generateProof(index, this.hashes.length - 1);
+        const result = this.generateProof(txHash, index, this.hashes.length - 1, 0);
+        result.index = result.index | (1 << this.getBits());
+        return result;
     }
 
-    private static isCompleteSubTree(from: number, to: number): boolean {
-        const numNodes = to - from + 1;
-        return (Math.pow(2, Math.log2(numNodes)) === numNodes);
+    private getBits(): number {
+        return Math.ceil(Math.log2(this.originalTxHashes.length));
     }
 
-    private generateProof(index: number, root: number): MerkleProof {
+    private generateProof(txHash: string, index: number, root: number, depth: number): MerkleProof {
         let totalBits = 0;
         const totalSize = Math.pow(2, totalBits);
         if (this.hashes[root].leftChild == -1 && this.hashes[root].rightChild == -1) {
+            const found = (this.toHex(this.hashes[root].hash) === txHash);
             return {
-                nodes: [
+                hashes: [
                     this.toHex(this.hashes[root].hash)
                 ],
-                flags: "0"
+                index: index,
+                found: found
             }
         }
         if (index < this.hashes[root].fromIndex || index > this.hashes[root].toIndex) {
+            const found = (this.toHex(this.hashes[root].hash) === txHash);
             return {
-                nodes: [
+                hashes: [
                     this.toHex(this.hashes[root].hash)
                 ],
-                flags: "0"
+                index: index,
+                found: found
             }
         }
         if (index >= this.hashes[root].fromIndex && index <= this.hashes[root].toIndex) {
-            const leftProof = this.generateProof(index, this.hashes[root].leftChild);
-            const rightProof = this.generateProof(index, this.hashes[root].rightChild);
+            const leftProof = this.generateProof(txHash, index, this.hashes[root].leftChild, depth + 1);
+            const rightProof = this.generateProof(txHash, index, this.hashes[root].rightChild, depth + 1);
+            let first = leftProof;
+            let second = rightProof;
+            if (rightProof.found) {
+                first = rightProof;
+                second = leftProof;
+            }
             return {
-                nodes: [
-                    ...leftProof.nodes,
-                    ...rightProof.nodes
+                hashes: [
+                    ...first.hashes,
+                    ...second.hashes
                 ],
-                flags: leftProof.flags + rightProof.flags + "1"
+                index: index,
+                found: leftProof.found || rightProof.found
             };
         }
     }
@@ -142,26 +155,18 @@ export class BitcoinMerkleTree {
     public verifyProof(leaf: string, proof: MerkleProof): boolean {
         // Verifies that leaf is a part of the root based on proof
         const hashes: Buffer[] = [];
-        let nodesIndex = 0;
-        let hashesIndex = 0;
-        let foundTx = false;
-        for (var i = 0; i < proof.flags.length;i++) {
-            if (proof.flags[i] == '0') {
-                if (proof.nodes[nodesIndex] === leaf) {
-                    foundTx = true;
-                }
-                if (hashesIndex >= hashes.length) {
-                    hashes.push(Buffer.from(proof.nodes[nodesIndex++], "hex").reverse());
-                } else {
-                    hashes[hashesIndex] = Buffer.from(proof.nodes[nodesIndex++], "hex").reverse();
-                }
-                hashesIndex++;
+        let hash = Buffer.from(proof.hashes[0], "hex").reverse();
+        let index = proof.index;
+        let i = 1;
+        while (index > 1) {
+            if (index & 1) {
+                hash = doubleHash(Buffer.concat([Buffer.from(proof.hashes[i], "hex").reverse(), hash]));
             } else {
-                hashes[hashesIndex - 2] = doubleHash(Buffer.concat([hashes[hashesIndex - 2], hashes[hashesIndex - 1]]));
-                hashesIndex--;
+                hash = doubleHash(Buffer.concat([hash, Buffer.from(proof.hashes[i], "hex").reverse()]));
             }
+            i++;
+            index = index >> 1;
         }
-        return (foundTx && (hashesIndex == 1) && this.getRoot() === this.toHex(hashes[0]));
+        return (leaf === proof.hashes[0] && this.toHex(hash) === this.getRoot());
     }
-
 }
