@@ -5,7 +5,7 @@ import {biggerDataSet, dataset239Txs} from './testdata';
 describe("MerkleTreeTest", () => {
     // test case for average here
 
-    describe("create merkle tree", () => {
+    describe("create merkle tree and verify merkle proof of inclusion", () => {
         it("Happy case", () => {
             const txs = [
                 "bcdc61cbecf6137eec5c8ad4047fcdc36710e77e404b17378a33ae605920afe1",
