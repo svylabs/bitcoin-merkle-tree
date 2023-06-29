@@ -9,7 +9,8 @@
         "/dist"
     ],
     "scripts": {
-        "test": "mocha -r ts-node/register src/test/**/*_spec.ts"
+        "test": "mocha -r ts-node/register src/test/**/*_spec.ts",
+        "build": "tsc"
     },
     "dependencies": {
         "@types/node": "^18.11.18"

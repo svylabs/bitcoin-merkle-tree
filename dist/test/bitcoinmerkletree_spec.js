@@ -1,10 +1,8 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 import { BitcoinMerkleTree } from '../bitcoinmerketree';
-import {biggerDataSet, block700003, dataset239Txs} from './testdata';
-
+import { biggerDataSet, block700003, dataset239Txs } from './testdata';
 describe("MerkleTreeTest", () => {
     // test case for average here
-
     describe("create merkle tree and verify merkle proof of inclusion", () => {
         it("Happy case", () => {
             const txs = [
@@ -18,57 +16,51 @@ describe("MerkleTreeTest", () => {
                 "57eef4da5edacc1247e71d3a93ed2ccaae69c302612e414f98abf8db0b671eae",
                 "8d30eb0f3e65b8d8a9f26f6f73fc5aafa5c0372f9bb38aa38dd4c9dd1933e090",
                 "13e3167d46334600b59a5aa286dd02147ac33e64bfc2e188e1f0c0a442182584"
-              ]
+            ];
             const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string("be0b136f2f3db38d4f55f1963f0acac506d637b3c27a4c42f3504836a4ec52b1");
-            for (var i=0;i<txs.length;i++) {
+            for (var i = 0; i < txs.length; i++) {
                 const proof = instance.getInclusionProof(txs[i]);
                 console.log(txs[i], proof);
                 expect(instance.verifyProof(txs[i], proof)).equals(true);
             }
-            for (var i=0;i<txs.length;i++) {
+            for (var i = 0; i < txs.length; i++) {
                 const proof = instance.getInclusionProof(txs[i]);
                 // Verify proof for incorrect transaction leaf should fail
                 console.log(txs[i], proof);
                 expect(instance.verifyProof(txs[(i + 5) % txs.length], proof)).equals(false);
             }
         });
-
         it("Bigger test", () => {
             const txs = dataset239Txs.txs;
             const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string(dataset239Txs.root);
-            for (var i=0;i<txs.length;i++) {
+            for (var i = 0; i < txs.length; i++) {
                 const proof = instance.getInclusionProof(txs[i]);
                 //console.log(proof);
                 expect(instance.verifyProof(txs[i], proof)).equals(true);
             }
         });
-
-
         it("Even Bigger dataset", () => {
             const txs = biggerDataSet.txs;
             const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string(biggerDataSet.root);
-            for (var i=0;i<txs.length;i++) {
+            for (var i = 0; i < txs.length; i++) {
                 const proof = instance.getInclusionProof(txs[i]);
-
                 //console.log(proof);
                 expect(instance.verifyProof(txs[i], proof)).equals(true);
             }
         });
-
         it("Block 700003", () => {
             const txs = block700003.txs;
             const instance = new BitcoinMerkleTree(txs);
             console.log(instance.getRoot());
             expect(instance.getRoot()).to.be.string(block700003.root);
-            for (var i=0;i<txs.length;i++) {
+            for (var i = 0; i < txs.length; i++) {
                 const proof = instance.getInclusionProof(txs[i]);
-                
                 //console.log(proof);
                 expect(instance.verifyProof(txs[i], proof)).equals(true);
             }
